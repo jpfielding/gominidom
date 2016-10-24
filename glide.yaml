@@ -1,0 +1,7 @@
+package: github.com/jpfielding/gominidom
+homepage: github.com/jpfielding/gominidom
+license: GPL2
+
+import:
+  - package: github.com/jpfielding/gotest
+    ref:     9af298f44dfd4448f39984a38ee176cfff9f774f
