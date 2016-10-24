@@ -55,7 +55,10 @@ func (md MiniDom) Walk(parser *xml.Decoder, prefix string, each EachDOM) error {
 // recurse into the <prefix> and pipe them into the buffer
 func mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) error {
 	// write start elem
-	collect.EncodeToken(start)
+	err := collect.EncodeToken(start)
+	if err != nil {
+		return nil
+	}
 	for {
 		token, err := parser.Token()
 		if err != nil {
@@ -70,13 +73,14 @@ func mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) err
 				return nil
 			}
 		case xml.EndElement:
-			// write end elem
-			collect.EncodeToken(t)
-			// return on end elem
-			return nil
+			// write end elem, and return
+			return collect.EncodeToken(t)
 		default:
 			// write other element
-			collect.EncodeToken(t)
+			err = collect.EncodeToken(t)
+			if err != nil {
+				return nil
+			}
 		}
 	}
 
