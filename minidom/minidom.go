@@ -31,7 +31,7 @@ func (md MiniDom) Walk(parser *xml.Decoder, prefix string, each EachDOM) error {
 			case prefix:
 				var buf bytes.Buffer
 				enc := xml.NewEncoder(&buf)
-				err = md.mini(enc, t, parser)
+				err = mini(enc, t, parser)
 				enc.Flush()
 				if err = each(ioutil.NopCloser(&buf), err); err != nil {
 					return err
@@ -53,7 +53,7 @@ func (md MiniDom) Walk(parser *xml.Decoder, prefix string, each EachDOM) error {
 }
 
 // recurse into the <prefix> and pipe them into the buffer
-func (md MiniDom) mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) error {
+func mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) error {
 	// write start elem
 	collect.EncodeToken(start)
 	for {
@@ -65,7 +65,7 @@ func (md MiniDom) mini(collect *xml.Encoder, start xml.StartElement, parser *xml
 		switch t := token.(type) {
 		case xml.StartElement:
 			// recurse
-			return md.mini(collect, t, parser)
+			return mini(collect, t, parser)
 		case xml.EndElement:
 			// write end elem
 			collect.EncodeToken(t)
