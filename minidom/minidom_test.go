@@ -2,7 +2,6 @@ package minidom
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -33,11 +32,12 @@ func TestSimple(t *testing.T) {
 	err := md.Walk(parser, "mini", func(segment io.ReadCloser, err error) error {
 		tmp := Mini{}
 		xml.NewDecoder(segment).Decode(&tmp)
-		fmt.Printf("found mini %v\n", tmp)
 		mini = append(mini, tmp)
 		return err
 	})
 	testutils.Ok(t, err)
 	testutils.Equals(t, 3, len(mini))
 	testutils.Equals(t, 1, mini[0].ID)
+	testutils.Equals(t, 2, mini[1].ID)
+	testutils.Equals(t, 3, mini[2].ID)
 }
