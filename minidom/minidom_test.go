@@ -136,7 +136,8 @@ func TestComplexStartEnd(t *testing.T) {
 		Maxrows bool
 	}
 	type Listing struct {
-		ID string `xml:"ListingID"`
+		ID        string `xml:"Listing>ListingID"`
+		Ownership string `xml:"Business>RESIOWNS"`
 	}
 	var data = `
     <?xml version="1.0" encoding="utf-8"?>
@@ -145,12 +146,40 @@ func TestComplexStartEnd(t *testing.T) {
       <REData>
         <REProperties>
           <Residential>
-            <PropertyListing><ListingID>one</ListingID></PropertyListing>
-            <PropertyListing><ListingID>two</ListingID></PropertyListing>
+            <PropertyListing>
+				<Business>
+			  	<RESIOWNS>Private Owned</RESIOWNS>
+				</Business>
+				<Listing>
+					<ListingID>one</ListingID>
+				</Listing>
+			</PropertyListing>
+			<PropertyListing>
+				<Business>
+			  	<RESIOWNS>Private Owned</RESIOWNS>
+				</Business>
+				<Listing>
+					<ListingID>two</ListingID>
+				</Listing>
+			</PropertyListing>
           </Residential>
           <Commerical>
-            <PropertyListing><ListingID>three</ListingID></PropertyListing>
-            <PropertyListing><ListingID>four</ListingID></PropertyListing>
+		  <PropertyListing>
+			  <Business>
+			  <RESIOWNS>Private Owned</RESIOWNS>
+			  </Business>
+			  <Listing>
+				  <ListingID>three</ListingID>
+			  </Listing>
+		  </PropertyListing>
+		  <PropertyListing>
+			  <Business>
+			  <RESIOWNS>Private Owned</RESIOWNS>
+			  </Business>
+			  <Listing>
+				  <ListingID>four</ListingID>
+			  </Listing>
+		  </PropertyListing>
           </Commerical>
         </REProperties>
       </REData>

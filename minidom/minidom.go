@@ -65,7 +65,10 @@ func mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) err
 		switch t := token.(type) {
 		case xml.StartElement:
 			// recurse
-			return mini(collect, t, parser)
+			err = mini(collect, t, parser)
+			if err != nil {
+				return nil
+			}
 		case xml.EndElement:
 			// write end elem
 			collect.EncodeToken(t)
