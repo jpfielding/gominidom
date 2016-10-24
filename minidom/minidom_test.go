@@ -43,6 +43,23 @@ func TestSimple(t *testing.T) {
 	testutils.Equals(t, 3, mini[2].ID)
 }
 
+func TestEof(t *testing.T) {
+	var data = `<xml>
+    <mini id="1"></mini>
+    <mini id="2"></mini>
+    <mini id="3"></mini>
+    </xml>`
+
+	doms := ioutil.NopCloser(strings.NewReader(data))
+	parser := xml.NewDecoder(doms)
+	// no return func will allow io.EOF to _properly_ escape
+	md := MiniDom{}
+	err := md.Walk(parser, "mini", func(segment io.ReadCloser, err error) error {
+		return err
+	})
+	testutils.Equals(t, io.EOF, err)
+}
+
 func TestComplex(t *testing.T) {
 	type Address struct {
 		FullStreetAddres string
