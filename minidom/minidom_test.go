@@ -131,6 +131,10 @@ func TestComplexStartEnd(t *testing.T) {
             <PropertyListing><ListingID>one</ListingID></PropertyListing>
             <PropertyListing><ListingID>two</ListingID></PropertyListing>
           </Residential>
+          <Commerical>
+            <PropertyListing><ListingID>three</ListingID></PropertyListing>
+            <PropertyListing><ListingID>four</ListingID></PropertyListing>
+          </Commerical>
         </REProperties>
       </REData>
       <MAXROWS/>
@@ -175,9 +179,11 @@ func TestComplexStartEnd(t *testing.T) {
 		return err
 	})
 	testutils.Ok(t, err)
-	testutils.Equals(t, 2, len(listings))
+	testutils.Equals(t, 4, len(listings))
 	testutils.Equals(t, "one", listings[0].ID)
 	testutils.Equals(t, "two", listings[1].ID)
+	testutils.Equals(t, "three", listings[2].ID)
+	testutils.Equals(t, "four", listings[3].ID)
 	testutils.Equals(t, 74, response.Count)
 	testutils.Equals(t, true, response.Maxrows)
 	testutils.Equals(t, 0, int(response.Code))
