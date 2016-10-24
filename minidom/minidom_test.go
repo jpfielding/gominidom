@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -112,6 +113,8 @@ func TestComplex(t *testing.T) {
 
 func TestComplexStartEnd(t *testing.T) {
 	type Response struct {
+		Code    int64
+		Text    string
 		Count   int `xml:"Records,attr"`
 		Maxrows bool
 	}
@@ -141,6 +144,15 @@ func TestComplexStartEnd(t *testing.T) {
 	md := MiniDom{
 		StartFunc: func(start xml.StartElement) {
 			switch start.Name.Local {
+			case "RETS":
+				for _, v := range start.Attr {
+					switch v.Name.Local {
+					case "ReplyText":
+						response.Text = v.Value
+					case "ReplyCode":
+						response.Code, _ = strconv.ParseInt(v.Value, 10, 16)
+					}
+				}
 			case "COUNT":
 				parser.DecodeElement(&response, &start)
 			case "MAXROWS":
@@ -168,4 +180,6 @@ func TestComplexStartEnd(t *testing.T) {
 	testutils.Equals(t, "two", listings[1].ID)
 	testutils.Equals(t, 74, response.Count)
 	testutils.Equals(t, true, response.Maxrows)
+	testutils.Equals(t, 0, int(response.Code))
+	testutils.Equals(t, "Operation successful.", response.Text)
 }
