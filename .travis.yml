@@ -1,0 +1,11 @@
+language: go
+sudo: false
+
+install:
+  - export GO15VENDOREXPERIMENT=1
+  - export PATH=$PATH:$PWD/linux-386/
+
+go:
+  - 1.7
+  - tip
+
