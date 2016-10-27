@@ -10,6 +10,13 @@ import (
 // EachDOM provides a walking function for a substream
 type EachDOM func(io.ReadCloser, error) error
 
+// QuitAt is a default implementation for EndFunc
+func QuitAt(stop string) func(xml.EndElement) bool {
+	return func(end xml.EndElement) bool {
+		return end.Name.Local == stop
+	}
+}
+
 // MiniDom ...
 type MiniDom struct {
 	// StartFunc listens to start elems outside of Prefix
@@ -19,7 +26,7 @@ type MiniDom struct {
 }
 
 // Walk finds the next <prefix> and produces an io.ReadCloser of the <prefix>...</prefix> sub elem
-func (md MiniDom) Walk(parser *xml.Decoder, prefix string, each EachDOM) error {
+func (md MiniDom) Walk(parser *xml.Decoder, match string, each EachDOM) error {
 	for {
 		token, err := parser.Token()
 		if err != nil {
@@ -28,7 +35,7 @@ func (md MiniDom) Walk(parser *xml.Decoder, prefix string, each EachDOM) error {
 		switch t := token.(type) {
 		case xml.StartElement:
 			switch t.Name.Local {
-			case prefix:
+			case match:
 				var buf bytes.Buffer
 				enc := xml.NewEncoder(&buf)
 				err = mini(enc, t, parser)
@@ -64,7 +71,7 @@ func mini(collect *xml.Encoder, start xml.StartElement, parser *xml.Decoder) err
 		if err != nil {
 			return err
 		}
-		// TODO we need to think about namespaces and how we transplant them
+		// namespaces arent handled here
 		switch t := token.(type) {
 		case xml.StartElement:
 			// recurse

@@ -25,10 +25,7 @@ func TestSimple(t *testing.T) {
 	parser := xml.NewDecoder(doms)
 	var mini []Mini
 	md := MiniDom{
-		// quit on the the xml tag
-		EndFunc: func(end xml.EndElement) bool {
-			return end.Name.Local == "xml"
-		},
+		EndFunc: QuitAt("xml"),
 	}
 	err := md.Walk(parser, "mini", func(segment io.ReadCloser, err error) error {
 		tmp := Mini{}
@@ -111,10 +108,7 @@ func TestComplex(t *testing.T) {
 	parser := xml.NewDecoder(doms)
 	var listings []Listing
 	md := MiniDom{
-		// quit on the the xml tag
-		EndFunc: func(end xml.EndElement) bool {
-			return end.Name.Local == "Listings"
-		},
+		EndFunc: QuitAt("Listings"),
 	}
 	err := md.Walk(parser, "Listing", func(segment io.ReadCloser, err error) error {
 		tmp := Listing{}
