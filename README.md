@@ -32,7 +32,7 @@ Python's minidom in Go
     			EndFunc: QuitAt("Listings"),
     		}
     	}
-    	err := md.Walk(parser, "Listing", syndication.ToListing(func(l Listing, err error) error {
+    	err := md.Walk(parser, ByName("Listing"), syndication.ToListing(func(l Listing, err error) error {
     		// .... process the listing here
     		return err
     	}))
