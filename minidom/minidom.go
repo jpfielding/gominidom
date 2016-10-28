@@ -17,7 +17,7 @@ func QuitAt(stop string) func(xml.EndElement) bool {
 	}
 }
 
-// MiniDom ...
+// MiniDom provides the lifecycle management for walking streams of doms
 type MiniDom struct {
 	// StartFunc listens to start elems outside of Prefix
 	StartFunc func(xml.StartElement)
@@ -25,8 +25,18 @@ type MiniDom struct {
 	EndFunc func(xml.EndElement) bool
 }
 
+// Matcher provides a swappable matcher for finding elems
+type Matcher func(xml.StartElement) bool
+
+// ByName is the simple default for matching
+func ByName(match string) Matcher {
+	return func(t xml.StartElement) bool {
+		return t.Name.Local == match
+	}
+}
+
 // Walk finds the next <prefix> and produces an io.ReadCloser of the <prefix>...</prefix> sub elem
-func (md MiniDom) Walk(parser *xml.Decoder, match string, each EachDOM) error {
+func (md MiniDom) Walk(parser *xml.Decoder, match Matcher, each EachDOM) error {
 	for {
 		token, err := parser.Token()
 		if err != nil {
@@ -34,8 +44,8 @@ func (md MiniDom) Walk(parser *xml.Decoder, match string, each EachDOM) error {
 		}
 		switch t := token.(type) {
 		case xml.StartElement:
-			switch t.Name.Local {
-			case match:
+			switch {
+			case match(t):
 				var buf bytes.Buffer
 				enc := xml.NewEncoder(&buf)
 				err = mini(enc, t, parser)

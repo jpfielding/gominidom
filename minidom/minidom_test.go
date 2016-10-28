@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -27,7 +28,7 @@ func TestSimple(t *testing.T) {
 	md := MiniDom{
 		EndFunc: QuitAt("xml"),
 	}
-	err := md.Walk(parser, "mini", func(segment io.ReadCloser, err error) error {
+	err := md.Walk(parser, ByName("mini"), func(segment io.ReadCloser, err error) error {
 		tmp := Mini{}
 		xml.NewDecoder(segment).Decode(&tmp)
 		mini = append(mini, tmp)
@@ -38,6 +39,39 @@ func TestSimple(t *testing.T) {
 	testutils.Equals(t, 1, mini[0].ID)
 	testutils.Equals(t, 2, mini[1].ID)
 	testutils.Equals(t, 3, mini[2].ID)
+}
+
+func TestMatch(t *testing.T) {
+	type Pet struct {
+		Name string `xml:"name,attr"`
+	}
+	var data = `<xml>
+    <cat name="snowball"></cat>
+    <dog name="buddy"></dog>
+	<dogg name="snoop"></dogg>
+    <snake name="fred"></snake>
+    </xml>`
+
+	doms := ioutil.NopCloser(strings.NewReader(data))
+	parser := xml.NewDecoder(doms)
+	var pet []Pet
+	md := MiniDom{
+		EndFunc: QuitAt("xml"),
+	}
+	rg, _ := regexp.Compile("^(cat|dog)$")
+	match := func(t xml.StartElement) bool {
+		return rg.MatchString(t.Name.Local)
+	}
+	err := md.Walk(parser, match, func(segment io.ReadCloser, err error) error {
+		p := Pet{}
+		xml.NewDecoder(segment).Decode(&p)
+		pet = append(pet, p)
+		return err
+	})
+	testutils.Ok(t, err)
+	testutils.Equals(t, 2, len(pet))
+	testutils.Equals(t, "snowball", pet[0].Name)
+	testutils.Equals(t, "buddy", pet[1].Name)
 }
 
 func TestEof(t *testing.T) {
@@ -51,7 +85,7 @@ func TestEof(t *testing.T) {
 	parser := xml.NewDecoder(doms)
 	// no return func will allow io.EOF to _properly_ escape
 	md := MiniDom{}
-	err := md.Walk(parser, "mini", func(segment io.ReadCloser, err error) error {
+	err := md.Walk(parser, ByName("mini"), func(segment io.ReadCloser, err error) error {
 		return err
 	})
 	testutils.Equals(t, io.EOF, err)
@@ -110,7 +144,7 @@ func TestComplex(t *testing.T) {
 	md := MiniDom{
 		EndFunc: QuitAt("Listings"),
 	}
-	err := md.Walk(parser, "Listing", func(segment io.ReadCloser, err error) error {
+	err := md.Walk(parser, ByName("Listing"), func(segment io.ReadCloser, err error) error {
 		tmp := Listing{}
 		xml.NewDecoder(segment).Decode(&tmp)
 		listings = append(listings, tmp)
@@ -212,7 +246,7 @@ func TestComplexStartEnd(t *testing.T) {
 			return false
 		},
 	}
-	err := md.Walk(parser, "PropertyListing", func(segment io.ReadCloser, err error) error {
+	err := md.Walk(parser, ByName("PropertyListing"), func(segment io.ReadCloser, err error) error {
 		tmp := Listing{}
 		xml.NewDecoder(segment).Decode(&tmp)
 		listings = append(listings, tmp)
