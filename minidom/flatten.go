@@ -30,7 +30,7 @@ func (f Flatten) Map(parser *xml.Decoder) (map[string]string, error) {
 		}
 		switch t := token.(type) {
 		case xml.StartElement:
-			if f.OmitPrefix && t.Name.Local == f.Prefix {
+			if f.OmitPrefix && t.Name.Local == f.Prefix && len(path) == 0 {
 				continue
 			}
 			// push the path
