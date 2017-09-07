@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	testutils "github.com/jpfielding/goTest/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSimple(t *testing.T) {
@@ -34,11 +34,11 @@ func TestSimple(t *testing.T) {
 		mini = append(mini, tmp)
 		return err
 	})
-	testutils.Ok(t, err)
-	testutils.Equals(t, 3, len(mini))
-	testutils.Equals(t, 1, mini[0].ID)
-	testutils.Equals(t, 2, mini[1].ID)
-	testutils.Equals(t, 3, mini[2].ID)
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(mini))
+	assert.Equal(t, 1, mini[0].ID)
+	assert.Equal(t, 2, mini[1].ID)
+	assert.Equal(t, 3, mini[2].ID)
 }
 
 func TestMatch(t *testing.T) {
@@ -68,10 +68,10 @@ func TestMatch(t *testing.T) {
 		pet = append(pet, p)
 		return err
 	})
-	testutils.Ok(t, err)
-	testutils.Equals(t, 2, len(pet))
-	testutils.Equals(t, "snowball", pet[0].Name)
-	testutils.Equals(t, "buddy", pet[1].Name)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(pet))
+	assert.Equal(t, "snowball", pet[0].Name)
+	assert.Equal(t, "buddy", pet[1].Name)
 }
 
 func TestEof(t *testing.T) {
@@ -88,7 +88,7 @@ func TestEof(t *testing.T) {
 	err := md.Walk(parser, ByName("mini"), func(segment io.ReadCloser, err error) error {
 		return err
 	})
-	testutils.Equals(t, io.EOF, err)
+	assert.Equal(t, io.EOF, err)
 }
 
 func TestComplex(t *testing.T) {
@@ -150,10 +150,10 @@ func TestComplex(t *testing.T) {
 		listings = append(listings, tmp)
 		return err
 	})
-	testutils.Ok(t, err)
-	testutils.Equals(t, 2, len(listings))
-	testutils.Equals(t, "one", listings[0].ID)
-	testutils.Equals(t, "two", listings[1].ID)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(listings))
+	assert.Equal(t, "one", listings[0].ID)
+	assert.Equal(t, "two", listings[1].ID)
 }
 
 func TestComplexStartEnd(t *testing.T) {
@@ -252,14 +252,14 @@ func TestComplexStartEnd(t *testing.T) {
 		listings = append(listings, tmp)
 		return err
 	})
-	testutils.Ok(t, err)
-	testutils.Equals(t, 4, len(listings))
-	testutils.Equals(t, "one", listings[0].ID)
-	testutils.Equals(t, "two", listings[1].ID)
-	testutils.Equals(t, "three", listings[2].ID)
-	testutils.Equals(t, "four", listings[3].ID)
-	testutils.Equals(t, 74, response.Count)
-	testutils.Equals(t, true, response.Maxrows)
-	testutils.Equals(t, 0, int(response.Code))
-	testutils.Equals(t, "Operation successful.", response.Text)
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(listings))
+	assert.Equal(t, "one", listings[0].ID)
+	assert.Equal(t, "two", listings[1].ID)
+	assert.Equal(t, "three", listings[2].ID)
+	assert.Equal(t, "four", listings[3].ID)
+	assert.Equal(t, 74, response.Count)
+	assert.Equal(t, true, response.Maxrows)
+	assert.Equal(t, 0, int(response.Code))
+	assert.Equal(t, "Operation successful.", response.Text)
 }
