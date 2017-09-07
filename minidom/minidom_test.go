@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	testutils "github.com/jpfielding/goTest/testutils"
+	testutils "github.com/jpfielding/gotest/testutils"
 )
 
 func TestSimple(t *testing.T) {
