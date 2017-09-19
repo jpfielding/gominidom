@@ -68,9 +68,6 @@ func TestFlattenNoPrefix(t *testing.T) {
 	flat, err := flatten.Map(parser)
 	assert.Nil(t, err)
 
-	b, _ := json.MarshalIndent(flat, "", "  ")
-	fmt.Print(string(b))
-
 	assert.Equal(t, "one", flat["ListingID"])
 	assert.Equal(t, "active", flat["Status"])
 	assert.Equal(t, "http://example.com/property/one.html", flat["URL"])
@@ -89,6 +86,11 @@ func TestFlattenNoPrefix(t *testing.T) {
 	assert.Equal(t, "US", flat["Address/Country"])
 	assert.Equal(t, "234000", flat["ListPrice"])
 	assert.Equal(t, "Public", flat["ListPrice/@isgSecurityClass"])
+
+	if t.Failed() {
+		b, _ := json.MarshalIndent(flat, "", "  ")
+		fmt.Print(string(b))
+	}
 }
 
 func TestFlattenWithPrefix(t *testing.T) {
@@ -103,9 +105,6 @@ func TestFlattenWithPrefix(t *testing.T) {
 	parser := xml.NewDecoder(strings.NewReader(data))
 	flat, err := flatten.Map(parser)
 	assert.Nil(t, err)
-
-	b, _ := json.MarshalIndent(flat, "", "  ")
-	fmt.Print(string(b))
 
 	assert.Equal(t, "mls", flat["Listing/@source"])
 	assert.Equal(t, "one", flat["Listing/ListingID"])
@@ -124,6 +123,11 @@ func TestFlattenWithPrefix(t *testing.T) {
 	assert.Equal(t, "US", flat["Listing/Address/Country"])
 	assert.Equal(t, "234000", flat["Listing/ListPrice"])
 	assert.Equal(t, "Public", flat["Listing/ListPrice/@isgSecurityClass"])
+
+	if t.Failed() {
+		b, _ := json.MarshalIndent(flat, "", "  ")
+		fmt.Print(string(b))
+	}
 }
 
 func TestFlattenNoRepeatable(t *testing.T) {
@@ -151,4 +155,9 @@ func TestFlattenNoRepeatable(t *testing.T) {
 	assert.Equal(t, "US", flat["Address/Country"])
 	assert.Equal(t, "234000", flat["ListPrice"])
 	assert.Equal(t, "Public", flat["ListPrice/@isgSecurityClass"])
+
+	if t.Failed() {
+		b, _ := json.MarshalIndent(flat, "", "  ")
+		fmt.Print(string(b))
+	}
 }
