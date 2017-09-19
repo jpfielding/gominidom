@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"path"
 	"strings"
 )
 
@@ -35,17 +36,16 @@ func (f Flatten) Map(parser *xml.Decoder) (map[string]string, error) {
 			}
 			// push the path
 			path = append(path, t.Name.Local)
-			xpath := strings.Join(path, "/")
+			xpath := XPath(path).String()
 			// check for repeatable modification, if so, replace the past path
 			if i, ok := counter[xpath]; ok {
 				counter[xpath] = (i + 1)
-				path[len(path)-1] = fmt.Sprintf("%s[%d]", t.Name.Local, i+1)
-				xpath = strings.Join(path, "/")
 			}
+			// apply the counts for the path
+			indexed := XPath(path).Index(counter)
 			// attributes for this element
 			for _, a := range t.Attr {
-				key := fmt.Sprintf("%s/@%s", xpath, a.Name.Local)
-				tmp[key] = a.Value
+				tmp[fmt.Sprintf("%s/@%s", indexed, a.Name.Local)] = a.Value
 			}
 		case xml.EndElement:
 			switch t.Name.Local {
@@ -55,9 +55,15 @@ func (f Flatten) Map(parser *xml.Decoder) (map[string]string, error) {
 			// see if we collected data for this element
 			value := strings.TrimSpace(buf.String())
 			if value != "" {
-				key := strings.Join(path, "/")
-				tmp[key] = value
+				tmp[XPath(path).Index(counter)] = value
 				buf.Reset()
+			}
+			// clear any counters for sub children
+			xpath := XPath(path).String()
+			for k := range counter {
+				if strings.HasPrefix(k, xpath+"/") {
+					counter[k] = 0
+				}
 			}
 			// pop
 			path = path[0 : len(path)-1]
@@ -65,4 +71,27 @@ func (f Flatten) Map(parser *xml.Decoder) (map[string]string, error) {
 			buf.Write(xml.CharData(t))
 		}
 	}
+}
+
+// XPath provides helpers for a path
+type XPath []string
+
+// String is the default string view
+func (xp XPath) String() string {
+	return path.Join(xp...)
+}
+
+// Index creates indexes a known path given count state
+func (xp XPath) Index(counts map[string]int) string {
+	var tmp []string
+	for i, e := range xp {
+		tmp = append(tmp, e)
+		// create the raw sub path for a key
+		sub := path.Join(xp[0 : i+1]...)
+		// if we have a counter, index this elem
+		if c, ok := counts[sub]; ok {
+			tmp[i] = fmt.Sprintf("%s[%d]", e, c)
+		}
+	}
+	return path.Join(tmp...)
 }
